@@ -1,8 +1,9 @@
 {
   "name": "Baby Milestones Tracker",
   "short_name": "baby-milesto",
-  "start_url": "/",
+  "start_url": "/baby-milestones-tracker/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#6366f1"
+  "theme_color": "#6366f1",
+  "scope": "/baby-milestones-tracker/"
 }
