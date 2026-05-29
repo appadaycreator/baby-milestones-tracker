@@ -3,8 +3,8 @@
 ## 概要
 
 **サービス名**: Baby Milestones Tracker
-**バージョン**: 1.0.0
-**更新日**: 2026-05-27
+**バージョン**: 1.1.0
+**更新日**: 2026-05-29
 **URL**: https://appadaycreator.com/baby-milestones-tracker/
 
 月齢別の発達マイルストーンを記録。寝返り・はいはい・つかまり立ちなど成長の記念に。登録不要・完全無料でご利用いただけます。
@@ -57,6 +57,16 @@
 - [Kids Growth Tracker](https://appadaycreator.com/kids-growth-tracker/)
 - [離乳食・ベビーフードアドバイザー](https://appadaycreator.com/baby-food-advisor/)
 - [赤ちゃん名前チェッカー](https://appadaycreator.com/baby-name-checker/)
+
+## v1.1.0 更新内容（2026-05-29）
+
+- **P1修正**: PWA theme-color を `#3B82F6` に統一（全ページ・manifest.json）
+- **P2修正**: 月齢未入力時の表示バグ修正（空文字での `(生後月ヶ月)` 表示を解消）
+- **P2追加**: 削除ボタンに確認ダイアログ追加（誤削除防止）
+- **P2追加**: 全削除（リセット）ボタン追加
+- **P2追加**: 「その他」選択時のカスタムマイルストーン名入力フィールド
+- **P3追加**: 達成状況バッジサマリー表示（達成済み件数と一覧）
+- **P3修正**: manifest.json の short_name を `"発達記録"` に変更
 
 ## テスト
 

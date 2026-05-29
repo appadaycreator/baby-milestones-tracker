@@ -10,7 +10,7 @@ j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
 <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#6366f1" />
+<meta name="theme-color" content="#3B82F6" />
     <title>赤ちゃん発達マイルストーン記録【無料】記録・管理アプリ</title>
     <meta name="description" content="月齢別の発達マイルストーンを記録。寝返り・はいはい・つかまり立ちなど成長の記念に。登録不要・完全無料でご利用いただけます。">
     <link rel="canonical" href="https://appadaycreator.com/baby-milestones-tracker/">
@@ -96,6 +96,7 @@ j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
         <ins class="adsbygoogle" style="display:block;margin:12px 0" data-ad-client="ca-pub-8427583028015858" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins>
         <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
 
+        <div id="milestone-summary"></div>
         <div class="card">
           <h2 style="font-size:18px;font-weight:700;margin-bottom:16px;">👶 マイルストーンを記録</h2>
           <div style="display:grid;gap:10px;margin-bottom:16px;">
@@ -111,10 +112,11 @@ j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
             </div>
             <div>
               <label style="font-size:12px;color:#666;">マイルストーン</label>
-              <select id="baby-milestone" style="width:100%;padding:10px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;margin-top:4px;">
+              <select id="baby-milestone" style="width:100%;padding:10px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;margin-top:4px;" onchange="toggleCustom(this.value)">
                 <option>首が座った</option><option>寝返り</option><option>お座り</option><option>はいはい</option><option>つかまり立ち</option>
                 <option>一人立ち</option><option>初めて歩いた</option><option>初めての言葉</option><option>離乳食スタート</option><option>その他</option>
               </select>
+              <input id="baby-milestone-custom" type="text" placeholder="マイルストーン名を入力（例：初めての外出）" style="width:100%;padding:10px;border:2px solid #e5e7eb;border-radius:8px;font-size:14px;margin-top:6px;display:none;">
             </div>
             <div>
               <label style="font-size:12px;color:#666;">メモ・エピソード</label>
@@ -206,24 +208,61 @@ j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
     <script>
 
     const KEY='baby-milestones-tracker';
-    const EMOJIS={'首が座った':'🙆','寝返り':'🔄','お座り':'🪑','はいはい':'🐣','つかまり立ち':'🧸','一人立ち':'🏆','初めて歩いた':'👣','初めての言葉':'💬','離乳食スタート':'🥄','その他':'⭐'};
+    const MILESTONES=['首が座った','寝返り','お座り','はいはい','つかまり立ち','一人立ち','初めて歩いた','初めての言葉','離乳食スタート'];
+    const EMOJIS={'首が座った':'🙆','寝返り':'🔄','お座り':'🪑','はいはい':'🐣','つかまり立ち':'🧸','一人立ち':'🏆','初めて歩いた':'👣','初めての言葉':'💬','離乳食スタート':'🥄'};
     function load(){ return JSON.parse(localStorage.getItem(KEY)||'[]'); }
     function save(d){ localStorage.setItem(KEY,JSON.stringify(d)); }
+
+    function toggleCustom(val){
+      document.getElementById('baby-milestone-custom').style.display = val==='その他' ? 'block' : 'none';
+    }
+
     function addEntry(){
       const month=document.getElementById('baby-month').value;
       const date=document.getElementById('baby-date').value;
-      const milestone=document.getElementById('baby-milestone').value;
+      let milestone=document.getElementById('baby-milestone').value;
+      if(milestone==='その他'){
+        const custom=document.getElementById('baby-milestone-custom').value.trim();
+        milestone = custom || 'その他';
+      }
       if(!date){ alert('達成日を入力してください'); return; }
       const memo=document.getElementById('baby-memo').value.trim();
       const data=load();
-      data.push({id:Date.now(),month,date,milestone,memo});
+      data.push({id:Date.now(),month:month===''?null:Number(month),date,milestone,memo});
       data.sort((a,b)=>a.date<b.date?-1:1);
       save(data); render();
       document.getElementById('baby-memo').value='';
+      document.getElementById('baby-milestone-custom').value='';
+      document.getElementById('baby-milestone').value='首が座った';
+      toggleCustom('首が座った');
     }
-    function deleteEntry(id){ save(load().filter(x=>x.id!==id)); render(); }
+
+    function deleteEntry(id,name){
+      if(!confirm(`「${name}」の記録を削除しますか？`)) return;
+      save(load().filter(x=>x.id!==id)); render();
+    }
+
+    function deleteAll(){
+      if(!confirm('すべての記録を削除しますか？\nこの操作は取り消せません。')) return;
+      save([]); render();
+    }
+
+    function renderSummary(data){
+      const achieved=new Set(data.map(x=>x.milestone));
+      const doneCount=MILESTONES.filter(m=>achieved.has(m)).length;
+      const html=MILESTONES.map(m=>{
+        const done=achieved.has(m);
+        return `<span style="display:inline-flex;align-items:center;gap:3px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;background:${done?'#DBEAFE':'#f1f5f9'};color:${done?'#1d4ed8':'#94a3b8'};margin:2px;">${done?'✓ ':''} ${EMOJIS[m]||''} ${m}</span>`;
+      }).join('');
+      const summary=document.getElementById('milestone-summary');
+      if(!summary) return;
+      if(!data.length){ summary.innerHTML=''; return; }
+      summary.innerHTML=`<div class="card" style="margin-bottom:8px;padding:16px;"><p style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px;">📊 達成状況 <span style="color:#3B82F6;">${doneCount}/${MILESTONES.length}</span> 件</p><div style="display:flex;flex-wrap:wrap;gap:2px;">${html}</div></div>`;
+    }
+
     function render(){
       const data=load();
+      renderSummary(data);
       if(!data.length){ document.getElementById('result').classList.remove('show'); return; }
       document.getElementById('result').classList.add('show');
       document.getElementById('list-area').innerHTML=`<h3 style="font-size:16px;font-weight:700;margin-bottom:12px;">🎠 成長記録（${data.length}件）</h3>`+
@@ -233,13 +272,14 @@ j=d.createElement(s),dl=l!="dataLayer"?"&l="+l:"";j.async=true;j.src=
             <span style="font-size:28px;">${EMOJIS[x.milestone]||'⭐'}</span>
             <div style="flex:1;">
               <div style="font-weight:700;font-size:15px;">${x.milestone}</div>
-              <div style="font-size:12px;color:#666;">${x.date}${x.month?` (生後${x.month}ヶ月)`:''}${x.memo?` — ${x.memo}`:''}
+              <div style="font-size:12px;color:#666;">${x.date}${x.month!=null && x.month!==''?` (生後${x.month}ヶ月)`:''}${x.memo?` — ${x.memo}`:''}
               </div>
             </div>
-            <button onclick="deleteEntry(${x.id})" style="background:none;border:none;color:#9ca3af;cursor:pointer;">✕</button>
+            <button onclick="deleteEntry(${x.id},${JSON.stringify(x.milestone)})" aria-label="${x.milestone}の記録を削除" style="background:none;border:none;color:#9ca3af;cursor:pointer;font-size:16px;padding:4px 8px;">✕</button>
           </div>
         </div>
-      `).join('');
+      `).join('')+
+      `<button onclick="deleteAll()" style="background:none;border:1.5px solid #e5e7eb;color:#9ca3af;padding:10px;border-radius:8px;font-size:13px;cursor:pointer;width:100%;margin-top:8px;">🗑 すべての記録を削除</button>`;
     }
     document.addEventListener('DOMContentLoaded',()=>{ const _n=new Date(); document.getElementById('baby-date').value=`${_n.getFullYear()}-${String(_n.getMonth()+1).padStart(2,'0')}-${String(_n.getDate()).padStart(2,'0')}`; render(); });
     // ★以下変更不要★

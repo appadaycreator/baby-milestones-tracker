@@ -1,9 +1,9 @@
 {
   "name": "Baby Milestones Tracker",
-  "short_name": "baby-milesto",
+  "short_name": "発達記録",
   "start_url": "/baby-milestones-tracker/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#7c3aed",
+  "theme_color": "#3B82F6",
   "scope": "/baby-milestones-tracker/"
 }
